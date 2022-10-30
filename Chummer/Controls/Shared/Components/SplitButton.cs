@@ -41,7 +41,7 @@ namespace Chummer
         private bool _isSplitMenuVisible;
 
         private ContextMenuStrip m_SplitMenuStrip;
-        private ContextMenu m_SplitMenu;
+
 
         private TextFormatFlags _textFormatFlags = TextFormatFlags.Default;
 
@@ -62,30 +62,6 @@ namespace Chummer
             set => SplitMenuStrip = value;
         }
 
-        [DefaultValue(null)]
-        public ContextMenu SplitMenu
-        {
-            get => m_SplitMenu;
-            set
-            {
-                //remove the event handlers for the old SplitMenu
-                if (m_SplitMenu != null)
-                {
-                    m_SplitMenu.Popup -= SplitMenu_Popup;
-                }
-
-                //add the event handlers for the new SplitMenu
-                if (value != null)
-                {
-                    ShowSplit = true;
-                    value.Popup += SplitMenu_Popup;
-                }
-                else
-                    ShowSplit = false;
-
-                m_SplitMenu = value;
-            }
-        }
 
         [DefaultValue(null)]
         public ContextMenuStrip SplitMenuStrip
@@ -274,9 +250,7 @@ namespace Chummer
                 return;
             }
 
-            //handle ContextMenu re-clicking the drop-down region to close the menu
-            if (m_SplitMenu != null && mevent.Button == MouseButtons.Left && !isMouseEntered)
-                _skipNextOpen = true;
+
 
             if (_dropDownRectangle.Contains(mevent.Location) && !_isSplitMenuVisible && mevent.Button == MouseButtons.Left)
             {
@@ -300,15 +274,6 @@ namespace Chummer
             if (mevent.Button == MouseButtons.Right && ClientRectangle.Contains(mevent.Location) && !_isSplitMenuVisible)
             {
                 ShowContextMenuStrip();
-            }
-            else if (m_SplitMenuStrip == null && m_SplitMenu == null || !_isSplitMenuVisible)
-            {
-                SetButtonDrawState();
-
-                if (ClientRectangle.Contains(mevent.Location) && !_dropDownRectangle.Contains(mevent.Location))
-                {
-                    OnClick(EventArgs.Empty);
-                }
             }
         }
 
@@ -835,14 +800,9 @@ namespace Chummer
 
             State = PushButtonState.Pressed;
 
-            if (m_SplitMenu != null)
-            {
-                m_SplitMenu.Show(this, new Point(0, Height));
-            }
-            else
-            {
-                m_SplitMenuStrip?.Show(this, new Point(0, Height), ToolStripDropDownDirection.BelowRight);
-            }
+
+            m_SplitMenuStrip?.Show(this, new Point(0, Height), ToolStripDropDownDirection.BelowRight);
+
         }
 
         private void SplitMenuStrip_Opening(object sender, CancelEventArgs e)

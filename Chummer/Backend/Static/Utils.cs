@@ -26,6 +26,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Security;
 #if DEBUG
 using System.Runtime.InteropServices;
@@ -406,7 +407,9 @@ namespace Chummer
             try
             {
                 WindowsPrincipal principal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
-                DirectorySecurity security = Directory.GetAccessControl(Path.GetDirectoryName(strPath) ?? throw new ArgumentOutOfRangeException(nameof(strPath)));
+                DirectoryInfo dInfo = new DirectoryInfo(Path.GetDirectoryName(strPath) ??
+                                                        throw new ArgumentOutOfRangeException(nameof(strPath)));
+                DirectorySecurity security = dInfo.GetAccessControl();
                 AuthorizationRuleCollection authRules = security.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
                 foreach (FileSystemAccessRule accessRule in authRules)

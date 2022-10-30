@@ -170,10 +170,14 @@ namespace ChummerHub.Client.Backend
                 try
                 {
                     string text;
-                    using (NamedPipeServerStream server = new NamedPipeServerStream(pipeNameString,
-                        PipeDirection.InOut, 1,
-                        PipeTransmissionMode.Message, PipeOptions.None,
-                        4028, 4028, ps))
+                    await using (NamedPipeServerStream server = new NamedPipeServerStream(
+                                     pipeNameString,
+                        PipeDirection.InOut,
+                        1,
+                        PipeTransmissionMode.Message,
+                        PipeOptions.None,
+                        4028,
+                        4028))
                     {
                         await server.WaitForConnectionAsync(token);
 

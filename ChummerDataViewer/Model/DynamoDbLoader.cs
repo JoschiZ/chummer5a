@@ -22,6 +22,7 @@ using System.ComponentModel;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
@@ -40,14 +41,14 @@ namespace ChummerDataViewer.Model
             _client = new AmazonDynamoDBClient(PersistentState.AWSCredentials, RegionEndpoint.EUCentral1);
             _worker.WorkerReportsProgress = false;
             _worker.WorkerSupportsCancellation = false;
-            _worker.DoWork += WorkerEntryPrt;
+            _worker.DoWork += WorkerEntryPrtAsync;
             _worker.RunWorkerAsync();
         }
 
         private readonly Stopwatch _objTimeoutStopwatch = Stopwatch.StartNew();
         private int _intCurrentTimeout;
 
-        private void WorkerEntryPrt(object sender, DoWorkEventArgs e)
+        private async void WorkerEntryPrtAsync(object sender, DoWorkEventArgs e)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace ChummerDataViewer.Model
                     try
                     {
                         //Scan 10 items. If middle of scan, pick up there
-                        ScanResponse response = ScanData(
+                        ScanResponse response = await ScanDataAsync(
                             PersistentState.Database.GetKey("crashdumps_last_timestamp"),
                             PersistentState.Database.GetKey("crashdumps_last_key")); //Start scanning based on last key in db
 
@@ -169,7 +170,7 @@ namespace ChummerDataViewer.Model
                 );
         }
 
-        private ScanResponse ScanData(string lastTimeStamp, string lastKey)
+        private async Task<ScanResponse> ScanDataAsync(string lastTimeStamp, string lastKey)
         {
             var request = new ScanRequest
             {
@@ -187,7 +188,8 @@ namespace ChummerDataViewer.Model
                 };
             }
 
-            return _client.Scan(request);
+            //TODO: This is only available as async now, need to redo
+            return await _client.ScanAsync(request);
         }
 
         public event StatusChangedEvent StatusChanged;

@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using Microsoft.AspNetCore.Http;
 using HttpResponse = SimpleHttpServer.Models.HttpResponse;
 
 namespace ChummerHub.Client.OidcClient
@@ -50,8 +50,8 @@ namespace ChummerHub.Client.OidcClient
                 }
             }
             return -1;
-            
-            
+
+
         }
 
         public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
@@ -135,7 +135,7 @@ namespace ChummerHub.Client.OidcClient
                     Name = "Hello Handler",
                     UrlRegex = null,//@"^/$",
                     Method = "GET",
-                    
+
                     Callable = request =>
                     {
                         _source.TrySetResult(request.Path);
@@ -225,15 +225,16 @@ namespace ChummerHub.Client.OidcClient
             {
                 ctx.Response.StatusCode = 200;
                 ctx.Response.ContentType = "text/html";
-                ctx.Response.Write("<h1>You can now return to the application.</h1>");
-                await ctx.Response.FlushAsync();
+                //TODO: IMPORTANT TEST THIS I AM REALLY NOT SURE IF THIS STILL DOES WHAT IT NEEDS TO DO
+                await ctx.Response.WriteAsync("<h1>You can now return to the application.</h1>");
+                await ctx.Response.Body.FlushAsync();
             }
             catch
             {
                 ctx.Response.StatusCode = 400;
                 ctx.Response.ContentType = "text/html";
-                ctx.Response.Write("<h1>Invalid request.</h1>");
-                await ctx.Response.FlushAsync();
+                await ctx.Response.WriteAsync("<h1>Invalid request.</h1>");
+                await ctx.Response.Body.FlushAsync();
             }
         }
 
